@@ -1,4 +1,4 @@
-,country,beer_servings,spirit_servings,wine_servings,total_litres_of_pure_alcohol,id,region,sub-region,total_servings,prop_wine,prop_beer,prop_spirits,rank_wine,rank_beer,rank_spirit,relative_rank_wine,relative_rank_beer,relative_rank_spirit
+,country,beer_servings,spirit_servings,wine_servings,total_litres_of_pure_alcohol,id,region,sub_region,total_servings,prop_wine,prop_beer,prop_spirits,rank_wine,rank_beer,rank_spirit,relative_rank_wine,relative_rank_beer,relative_rank_spirit
 0,Afghanistan,0,0,0,0.0,4,Asia,Southern Asia,0,,,,,,,,,
 1,Albania,89,132,54,4.9,8,Europe,Southern Europe,275,0.19636363636363635,0.3236363636363636,0.48,57.0,137.0,55.0,29.0,32.0,7.0
 2,Algeria,25,0,14,0.7,12,Africa,Northern Africa,39,0.358974358974359,0.6410256410256411,0.0,27.0,55.5,175.5,4.0,33.5,47.5

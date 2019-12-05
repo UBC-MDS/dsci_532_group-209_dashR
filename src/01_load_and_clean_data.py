@@ -36,7 +36,7 @@ df_location = df_location.replace({'name':
                                    }}).rename(columns={'name': 'country'})
 
 # merge datasets together
-df = df.merge(df_location[['country', 'country-code', 'region']], how='left')
+df = df.merge(df_location[['country', 'country-code', 'region', 'sub-region']], how='left')
 
 # add new columns for plotting
 df['total_servings'] = df.iloc[:, 1:4].sum(axis=1)

@@ -7,5 +7,5 @@ The app’s landing page will include a two bar charts showing the top- and bott
 Users are able to interactively engage with the dashboard by adjusting the cells of the alcohol type and respective geographic location of interest.  
 
 ## App Sketch
-![]("img/app_sketch.png")
+![](https://github.com/UBC-MDS/dsci_532_group-209_dashR/blob/master/img/app_sketch.png)
 

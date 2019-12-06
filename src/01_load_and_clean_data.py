@@ -53,6 +53,6 @@ df['relative_rank_beer'] = df.groupby('region')['prop_beer'].rank(ascending = Fa
 df['relative_rank_spirit'] = df.groupby('region')['prop_spirits'].rank(ascending = False)
 
 # rename 'country-code' to 'id'
-df = df.rename(columns={'country-code':'id'})
+df = df.rename(columns={'country-code':'id', 'sub-region':'sub_region'})
 
 df.to_csv("../data/merged_data_clean.csv")

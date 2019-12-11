@@ -4,6 +4,7 @@ library(dashHtmlComponents)
 library(tidyverse)
 library(plotly)
 
+app <- Dash$new(external_stylesheets = "https://codepen.io/chriddyp/pen/bWLwgP.css")
 
 # Selection components
 continentDropdown <- dccDropdown(
@@ -17,7 +18,6 @@ continentDropdown <- dccDropdown(
     list('label' = 'Oceania', 'value' = 'Oceania')
   ),
   value = "World"
-  clearable=FALSE
 )
 
 alcoholDropdown <- dccDropdown(
@@ -27,8 +27,7 @@ alcoholDropdown <- dccDropdown(
     list("label" = "Beer", "value" = "beer"),
     list("label" = "Spirits", "value" = "spirit")
     ),
-  value = "beer",
-  clearable=FALSE
+  value = "beer"
 )
 
 ########################################################################
@@ -49,19 +48,20 @@ app$layout(
     htmlDiv(
         list(
             htmlH1('Which Countries are Beer-lovers, Wine-lovers, or Spirit-lovers?'),
-            htmlH2(
+            htmlDiv(list(
+              htmlP(
                 "The following dashboard provides a visual overview on the proportion of \
                 global alcohol consumption across beer, wine and spirits in 2010. \
                 Users can simultaneously adjust the geographic location and specific \
                 alcohol type of their choice. The horizontal bar chart on the right of the \
                 map dynamically updates as different geographies and alcohol types are selected."
-            ),
-            htmlH2(
+                ),
+              htmlP(
                 "Note: Proportions are calculated as a ratio of total servings for a specific type of drink \
                 divided by the total servings of all drinks in the country. As a result, countries with low total servings \
                 of alchohol may have unusually high ratios as shown in the case of Saudi Arabia."
-            ),
-            dccMarkdown("Data Source: [FiveThirtyEight]](https://github.com/fivethirtyeight/data/tree/master/alcohol-consumption)"),
+            ))),
+            dccMarkdown("Data Source: [FiveThirtyEight](https://github.com/fivethirtyeight/data/tree/master/alcohol-consumption)"),
             htmlIframe(height=15, width=10, style=list(borderWidth = 0)), #space
             #selection components
             htmlLabel('Select a continent:'),

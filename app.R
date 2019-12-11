@@ -27,7 +27,7 @@ alcoholDropdown <- dccDropdown(
   options=list(
     list("label" = "Wine", "value" = "wine"),
     list("label" = "Beer", "value" = "beer"),
-    list("label" = "Spirits", "value" = "spirits")
+    list("label" = "Spirits", "value" = "spirit")
     ),
   value = "beer"
 )
@@ -35,24 +35,26 @@ alcoholDropdown <- dccDropdown(
 ########################################################################
 # Plot function goes here
 make_scatter <- function(world_region = "World", drink = "Beer") {
-  if(str_to_lower(world_region) == 'world') {
-    plot_scatter_world(drink)
-  } else{
+    if(str_to_lower(world_region) == 'world') {
+      plot_scatter_world(drink)
+    } else{
     
     xint = df %>% 
       filter(region == str_to_title(world_region)) %>% 
       summarise(xint = max(total_servings) / 2) %>% 
       pull() %>% 
       round()
-    
+    if(drink == 'spirit'){
+      drink = 'spirits'
+    }
     col <- paste('prop_',str_to_lower(drink),sep = '') 
     col_to_select <- match(col,colnames(df))
     
     p <- df %>% 
       filter(region == str_to_title(world_region)) %>% 
-      select(region, total_servings, col_to_select, sub_region,) %>% 
+      select(region, total_servings, col_to_select, sub_region, country) %>% 
       
-      ggplot(.,aes_string(x = "total_servings", y = col, color = "sub_region")) +
+      ggplot(.,aes_string(x = "total_servings", y = col, color = "sub_region", text = 'country')) +
       geom_point(size = 3, alpha = 0.75) +
       geom_vline(xintercept = xint, color = 'black', linetype = 'dashed') +
       geom_hline(yintercept = 0.5, color = 'black', linetype = 'dashed') +
@@ -69,7 +71,7 @@ make_scatter <- function(world_region = "World", drink = "Beer") {
       expand_limits(x = 0, y = 0) +
       theme(plot.title = element_text(hjust = 0.5))
     
-    ggplotly(p)
+    ggplotly(p, width = 1400, height = 800, tooltip = c("text") )
     
   }
   
@@ -77,9 +79,12 @@ make_scatter <- function(world_region = "World", drink = "Beer") {
 
 
 plot_scatter_world <- function(drink) {
+  if(drink == 'spirit'){
+    drink = 'spirits'
+  }
   col <- paste('prop_',str_to_lower(drink),sep = '')
   
-  p <- ggplot(df, aes_string(x = "total_servings", y = col, color = "region")) +
+  p <- ggplot(df, aes_string(x = "total_servings", y = col, color = "region", text = "country" )) +
     geom_point(size = 3, alpha = 0.75) + 
     geom_vline(xintercept = 348, color = 'black', linetype = 'dashed', alpha = 0.5) +
     geom_hline(yintercept = 0.5, color = 'black', linetype = 'dashed', alpha = 0.5) +
@@ -94,14 +99,70 @@ plot_scatter_world <- function(drink) {
     annotate(geom = 'text', label = 'Light dinkers, love all types of Alcohol', x = 100, y = -0.1,size = 5, color = 'red')+
     expand_limits(x = 0, y = 0) +
     theme(plot.title = element_text(hjust = 0.5))
-  ggplotly(p)
+  ggplotly(p, width = 1400, height = 800, tooltip = c("text"))
 }
+
+
+colors <- tibble(wine = 'red',
+                 spirit = 'blue',
+                 beer = 'yellow')
+top_n_countries <- function (continent = "World", alcohol = 'beer', n=20) {
+  title_continent = continent
+  if(n<0){
+    first_word <- 'Bottom'
+  } else{
+    first_word <- "Top"
+  }
+  
+  if(continent == "World"){
+    continent = unique(df$region)
+    title_continent = "World"
+  }
+  df <- df %>%
+    select(matches(alcohol),
+           matches("country"),
+           matches("region")) %>% 
+    filter(region %in% continent)
+  p <- df %>% 
+    top_n(n = n, wt = !!sym(names(df[2]))) %>% 
+    arrange(desc(!!sym(names(df[2])))) %>% 
+    ggplot(aes(x = reorder(!!sym(names(df[5])), !!sym(names(df[2]))),
+               y = !!sym(names(df[2])),
+               fill = !!sym(names(df[2])),
+               text = paste("Proportion: ", round(!!sym(names(df[2])), 2)))) +
+    geom_bar(stat = "identity") +
+    coord_flip() +
+    scale_y_continuous(limits = c(0, 1)) +
+    labs(title = paste(first_word, "20 Countries that Love", str_to_title(alcohol), "in", title_continent),
+         x = '',
+         y = 'Proportion Consumed') +
+    scale_fill_gradient(low = "white",
+                        high = sym(colors[[alcohol]]),
+                        limits = c(0, 1)) +
+    theme(legend.position = "none")
+  
+
+  ggplotly(p, width = 1200, height = 600, tooltip = c('text'))
+
+}
+
+
+
 ########################################################################
 
 # Define the graph as a dash component using generated figure
 graph <- dccGraph(
   id = 'alcohol-graph',
-  figure=make_graph()
+  figure=make_scatter()
+)
+bar_chart <- dccGraph(
+  id = 'bar_graph',
+  figure=top_n_countries()
+)
+
+bottom_20_bar_chart <- dccGraph(
+  id = 'bot20_bar-graph',
+  figure=top_n_countries(n=-20)
 )
 
 # app layout
@@ -129,6 +190,8 @@ app$layout(
             continentDropdown,
             htmlLabel('Select an alcohol type:'),
             alcoholDropdown,
+            bar_chart,
+            bottom_20_bar_chart,
             graph
         )
     )
@@ -144,6 +207,28 @@ app$callback(
   # translate list of params into function arguments
   function(continent_value, alcohol_value) {
     make_scatter(continent_value, alcohol_value)
+  })
+
+app$callback(
+  #update figure of alcohol-graph
+  output=list(id = 'bar_graph', property='figure'),
+  #based on values of continent and alcohol components
+  params=list(input(id = 'continent', property='value'),
+              input(id = 'alcohol', property='value')),
+  # translate list of params into function arguments
+  function(continent_value, alcohol_value) {
+    top_n_countries(continent_value, alcohol_value)
+  })
+
+app$callback(
+  #update figure of alcohol-graph
+  output=list(id = 'bot20_bar-graph', property='figure'),
+  #based on values of continent and alcohol components
+  params=list(input(id = 'continent', property='value'),
+              input(id = 'alcohol', property='value')),
+  # translate list of params into function arguments
+  function(continent_value, alcohol_value) {
+    top_n_countries(continent_value, alcohol_value, -20)
   })
 
 app$run_server(host = "0.0.0.0", port = Sys.getenv('PORT', 8050))

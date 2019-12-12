@@ -5,7 +5,7 @@ library(tidyverse)
 library(plotly)
 
 app <- Dash$new(external_stylesheets = "https://codepen.io/chriddyp/pen/bWLwgP.css")
-df <- read_csv("data/merged_data_clean.csv")
+df <- read_csv("https://raw.githubusercontent.com/UBC-MDS/dsci_532_group-209_dashR/master/data/merged_data_clean.csv")
 
 
 # Selection components

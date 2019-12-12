@@ -186,7 +186,7 @@ app$layout(
             dccMarkdown("Data Source: [FiveThirtyEight](https://github.com/fivethirtyeight/data/tree/master/alcohol-consumption)"),
             htmlIframe(height=15, width=10, style=list(borderWidth = 0)), #space
             #selection components
-            htmlLabel('Select a continent:'),
+            htmlLabel('Select a region:'),
             continentDropdown,
             htmlLabel('Select an alcohol type:'),
             alcoholDropdown,
